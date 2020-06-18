@@ -101,18 +101,18 @@ function createlvm()
 
     log "num: $numRaidDevices paths: '$raidDevices'"
     log "-- performing: pvcreate $raidDevices"
-    pvcreate -y $raidDevices
+    $(pvcreate -y $raidDevices)
     log "-- performing: vgcreate $vgName $raidDevices"
-    vgcreate -y $vgName $raidDevices
+    $(vgcreate -y $vgName $raidDevices)
 
     for ((j=0; j<mountPathCount; j++))
     do
       local mountPathLoc=${mountPathA[$j]}
       local sizeLoc=${sizeA[$j]}
       local lvNameLoc="$lvName-$j"
-      lvcreate -y --extents $sizeLoc%FREE --stripes $numRaidDevices --name $lvNameLoc $vgName
-      mkfs -f -t xfs /dev/$vgName/$lvNameLoc > /dev/null
-      mkdir -p $mountPathLoc
+      $(lvcreate -y --extents $sizeLoc%FREE --stripes $numRaidDevices --name $lvNameLoc $vgName)
+      $(mkfs -f -t xfs /dev/$vgName/$lvNameLoc) > /dev/null
+      $(mkdir -p $mountPathLoc)
 
       addtofstab /dev/$vgName/$lvNameLoc $mountPathLoc
     done
@@ -129,10 +129,10 @@ function createlvm()
       log " Device Path is $devicePath"
       # http://superuser.com/questions/332252/creating-and-formating-a-partition-using-a-bash-script
       # $(echo -e "n\np\n1\n\n\nw" | fdisk $devicePath) > /dev/null
-      echo 'type=83' | sfdisk $devicePath
+      $(echo 'type=83' | sfdisk $devicePath)
       local partPath="$devicePath""1"
-      mkfs -f -t xfs $partPath > /dev/null
-      mkdir -p $mountPathLoc
+      $(mkfs -f -t xfs $partPath) > /dev/null
+      $(mkdir -p $mountPathLoc)
 
       addtofstab $partPath $mountPathLoc
     else
